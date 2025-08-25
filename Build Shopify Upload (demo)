@@ -1,0 +1,46 @@
+name: Build Shopify Upload (demo)
+on:
+  workflow_dispatch:
+
+jobs:
+  make-csv:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas openpyxl
+
+      - name: Generate sample CSV (replace with your script later)
+        run: |
+          mkdir -p output
+          python - <<'PY'
+          import pandas as pd
+          df = pd.DataFrame([
+            {
+              "Title":"Demo Product",
+              "Body (HTML)":"<p>Demo</p>",
+              "Vendor":"SUKAI",
+              "Product Type":"Skincare",
+              "Tags":"demo,new",
+              "Variant Price": 29.0,
+              "Variant SKU":"DEMO-1",
+              "Image Src":"https://upload.wikimedia.org/wikipedia/commons/a/a3/June_odd-eyed-cat.jpg"
+            }
+          ])
+          df.to_csv("output/shopify_upload.csv", index=False)
+          PY
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: shopify_upload
+          path: output/shopify_upload.csv
